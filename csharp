@@ -1,0 +1,113 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Input;
+
+namespace BananaModLauncher
+{
+    public partial class MainWindow : Window
+    {
+        private int secretClicks = 0;
+        private string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        private string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            UsernameInput.Text = "Username eingeben...";
+            AutoScanPC();
+        }
+
+        // AUTOMATISCHER PC-SCAN FÜR BEDROCK & JAVA
+        private void AutoScanPC()
+        {
+            string javaPath = Path.Combine(appData, ".minecraft");
+            string bedrockPath = Path.Combine(localAppData, @"Packages\Microsoft.MinecraftUWP_8wekyb3d8bbwe");
+
+            bool hatJava = Directory.Exists(javaPath);
+            bool hatBedrock = Directory.Exists(bedrockPath);
+
+            if (!hatJava && !hatBedrock)
+            {
+                MessageBox.Show("Kein Minecraft auf diesem PC gefunden! BananaMod startet im Demo-Modus.", "BananaMod Scanner");
+            }
+        }
+
+        // LAUNCH FUNKTION (Verbindet sich mit Bedrock oder Java)
+        private void LaunchGame(object sender, RoutedEventArgs e)
+        {
+            string username = UsernameInput.Text;
+            if (string.IsNullOrEmpty(username) || username == "Username eingeben...")
+            {
+                MessageBox.Show("Gib gefälligst einen Usernamen ein!", "BananaMod");
+                return;
+            }
+
+            // Erst versuchen wir, die Windows Bedrock Edition zu triggern
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "minecraft:", // Das weckt die Windows App direkt auf
+                    UseShellExecute = true
+                });
+                MessageBox.Show($"Bedrock wird gestartet für: {username}");
+            }
+            catch (Exception)
+            {
+                // Wenn Bedrock nicht da ist, starten wir die Java-Struktur
+                string versionPath = Path.Combine(appData, ".minecraft", "versions", "1.20.4");
+                
+                if (Directory.Exists(versionPath))
+                {
+                    MessageBox.Show($"Java Edition 1.20.4 wird für {username} geladen. Mods werden injiziert!");
+                    // Hier würde dein finaler Java-Startbefehl ausgeführt werden
+                }
+                else
+                {
+                    MessageBox.Show("Keine Minecraft-Versionen gefunden. Lade Fallback-Struktur...", "BananaMod");
+                }
+            }
+        }
+
+        // GEHEIMES HACK-MENÜ (10 Klicks auf CkAH)
+        private void CkAH_Click(object sender, MouseButtonEventArgs e)
+        {
+            secretClicks++;
+            if (secretClicks == 10)
+            {
+                HackMenu.Visibility = Visibility.Visible;
+                MessageBox.Show("🔒 BANANAMOD BYPASS AKTIV! Fly, Killaura und X-Ray freigeschaltet.", "Hack Menu");
+            }
+        }
+
+        // NAVIGATION & UTILS
+        private void ShowHome(object sender, RoutedEventArgs e)
+        {
+            HomePage.Visibility = Visibility.Visible;
+            SettingsPage.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowSettings(object sender, RoutedEventArgs e)
+        {
+            HomePage.Visibility = Visibility.Collapsed;
+            SettingsPage.Visibility = Visibility.Visible;
+        }
+
+        private void BuyProfile(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Profil-Limit erreicht! Zahle 3€, um unendlich viele Profile freizuschalten.", "BananaMod Shop");
+        }
+
+        private void ClearPlaceholder(object sender, RoutedEventArgs e)
+        {
+            if (UsernameInput.Text == "Username eingeben...") UsernameInput.Text = "";
+        }
+
+        private void CloseApp(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+    }
+}
