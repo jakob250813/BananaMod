@@ -1,0 +1,8 @@
+{
+  "name": "bananamod-launcher",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  }
+}
